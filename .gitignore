@@ -1,0 +1,21 @@
+# Entorno virtual
+.venv/
+
+# Variables de entorno
+.env
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Pytest
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+
+
+
