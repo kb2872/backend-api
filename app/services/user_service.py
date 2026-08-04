@@ -12,8 +12,10 @@ def get_users(db: Session):
 def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
+
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
+
 
 def create_user(db: Session, user: UserCreate):
     # Verificar si ya existe un usuario con ese correo
@@ -39,6 +41,7 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
 
     return db_user
+
 
 
 def delete_user(db: Session, user_id: int):
@@ -82,5 +85,6 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate):
     db.refresh(user)
 
     return user
+
 
 
