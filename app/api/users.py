@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.api.dependencies import get_current_user
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import (
     get_users,
@@ -22,7 +23,11 @@ def list_users(db: Session = Depends(get_db)):
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     user = get_user_by_id(db, user_id)
 
     if user is None:
@@ -32,6 +37,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         )
 
     return user
+
 
 
 @router.post(
