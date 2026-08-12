@@ -18,7 +18,10 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[UserResponse])
-def list_users(db: Session = Depends(get_db)):
+def list_users(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
     return get_users(db)
 
 
