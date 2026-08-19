@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.api.dependencies import get_current_user
+from app.api.dependencies import require_admin
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import (
     get_users,
@@ -20,7 +20,7 @@ router = APIRouter(
 @router.get("/", response_model=list[UserResponse])
 def list_users(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user = Depends(require_admin),
 ):
     return get_users(db)
 
@@ -29,7 +29,7 @@ def list_users(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user = Depends(require_admin),
 ):
     user = get_user_by_id(db, user_id)
 
