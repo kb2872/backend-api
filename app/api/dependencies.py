@@ -36,20 +36,10 @@ def get_current_user(
 
 
 def require_admin(current_user=Depends(get_current_user)):
-    if current_user.role != "admin":
+    if current_user.id != 0 or current_user.role != "admin":
         raise HTTPException(
             status_code=403,
             detail="No tienes permisos para administrar usuarios"
         )
 
     return current_user
-
-
-
-
-
-
-
-
-
-

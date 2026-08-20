@@ -53,8 +53,13 @@ def get_user(
         }
     }
 )
-def add_user(user: UserCreate, db: Session = Depends(get_db)):
+def add_user(
+    user: UserCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_admin),
+):
     return create_user(db, user)
+
 
 
 @router.delete("/{user_id}", status_code=204)
