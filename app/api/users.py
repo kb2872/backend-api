@@ -63,7 +63,11 @@ def add_user(
 
 
 @router.delete("/{user_id}", status_code=204)
-def remove_user(user_id: int, db: Session = Depends(get_db)):
+def remove_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_admin),
+):
     user = delete_user(db, user_id)
 
     if user is None:
@@ -95,7 +99,8 @@ from app.services.user_service import (
 def edit_user(
     user_id: int,
     user: UserUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(require_admin),
 ):
     updated = update_user(db, user_id, user)
 
