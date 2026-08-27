@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
+from fastapi import HTTPException
 from jose import jwt
 from passlib.context import CryptContext
 
@@ -40,11 +41,17 @@ def create_access_token(data: dict):
 
 
 def decode_access_token(token: str):
-    return jwt.decode(
-        token,
-        SECRET_KEY,
-        algorithms=[ALGORITHM],
-    )
+    try:
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido o expirado"
+        )
 
 
 
