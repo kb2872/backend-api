@@ -3,9 +3,9 @@ from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from jose import jwt
 from passlib.context import CryptContext
+from app.core.config import SECRET_KEY
 
-# Cambia esta clave por una más larga y segura antes de producción
-SECRET_KEY = "henrylab-super-secret-key-change-me"
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
