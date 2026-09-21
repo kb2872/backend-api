@@ -35,21 +35,17 @@ def upgrade() -> None:
 
     row = result.fetchone()
 
-    if row is None:
-        raise RuntimeError(
-            "No se encontró el administrador esperado en id=14 con role='admin'."
+    if row is not None:
+        connection.execute(
+            text(
+                """
+                UPDATE users
+                SET id = 0
+                WHERE id = 14
+                  AND role = 'admin'
+                """
+            )
         )
-
-    connection.execute(
-        text(
-            """
-            UPDATE users
-            SET id = 0
-            WHERE id = 14
-              AND role = 'admin'
-            """
-        )
-    )
 
     connection.execute(
         text(
@@ -61,7 +57,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Restore the root administrator to ID 14."""
+    """Restore the root administrator to ID 14 when present."""
 
     connection = op.get_bind()
 
@@ -78,26 +74,30 @@ def downgrade() -> None:
 
     row = result.fetchone()
 
-    if row is None:
-        raise RuntimeError(
-            "No se encontró el administrador esperado en id=0."
+    if row is not None:
+        connection.execute(
+            text(
+                """
+                UPDATE users
+                SET id = 14
+                WHERE id = 0
+                  AND role = 'admin'
+                """
+            )
         )
 
-    connection.execute(
-        text(
-            """
-            UPDATE users
-            SET id = 14
-            WHERE id = 0
-              AND role = 'admin'
-            """
+        connection.execute(
+            text(
+                """
+                SELECT setval('users_id_seq', 14, true)
+                """
+            )
         )
-    )
-
-    connection.execute(
-        text(
-            """
-            SELECT setval('users_id_seq', 14, true)
-            """
+    else:
+        connection.execute(
+            text(
+                """
+                SELECT setval('users_id_seq', 1, false)
+                """
+            )
         )
-    )
