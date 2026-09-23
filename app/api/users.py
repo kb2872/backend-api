@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.api.dependencies import require_admin
+from app.api.dependencies import require_superadmin
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import (
     get_users,
@@ -20,7 +20,7 @@ router = APIRouter(
 @router.get("/", response_model=list[UserResponse])
 def list_users(
     db: Session = Depends(get_db),
-    current_user = Depends(require_admin),
+    current_user = Depends(require_superadmin),
 ):
     return get_users(db)
 
@@ -29,7 +29,7 @@ def list_users(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_admin),
+    current_user = Depends(require_superadmin),
 ):
     user = get_user_by_id(db, user_id)
 
@@ -56,7 +56,7 @@ def get_user(
 def add_user(
     user: UserCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_admin),
+    current_user = Depends(require_superadmin),
 ):
     return create_user(db, user)
 
@@ -66,7 +66,7 @@ def add_user(
 def remove_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_admin),
+    current_user = Depends(require_superadmin),
 ):
     user = delete_user(db, user_id)
 
@@ -100,7 +100,7 @@ def edit_user(
     user_id: int,
     user: UserUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_admin),
+    current_user = Depends(require_superadmin),
 ):
     updated = update_user(db, user_id, user)
 
