@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 
 from app.db.database import Base
+from app.core.roles import Role
 
 
 class User(Base):
@@ -15,7 +16,11 @@ class User(Base):
 
     password_hash = Column(String(255), nullable=True)
 
-    role = Column(String(20), nullable=False, default="user")
+    role = Column(
+        String(20),
+        nullable=False,
+        default=Role.CUSTOMER.value,
+    )
 
 
     created_at = Column(
