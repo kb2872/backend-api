@@ -2,36 +2,46 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from app.core.security import hash_password
+from testcontainers.community.postgres import PostgresContainer
+
 from app.core.roles import Role
+from app.core.security import hash_password
 from app.db.database import Base, get_db
 from app.main import app
 from app.models.user import User
 
 
-engine = create_engine(
-    "sqlite://",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+@pytest.fixture(scope="session")
+def postgres_container():
+    with PostgresContainer("postgres:15") as postgres:
+        yield postgres
+
+
+@pytest.fixture(scope="session")
+def db_engine(postgres_container):
+    engine = create_engine(postgres_container.get_connection_url())
+    yield engine
+    engine.dispose()
 
 
 @pytest.fixture
-def db_session():
-    Base.metadata.create_all(bind=engine)
+def db_session(db_engine):
+    Base.metadata.create_all(bind=db_engine)
+
+    TestingSessionLocal = sessionmaker(
+        autocommit=False,
+        autoflush=False,
+        bind=db_engine,
+    )
+
     session = TestingSessionLocal()
+
     try:
         yield session
     finally:
         session.close()
-        Base.metadata.drop_all(bind=engine)
+        Base.metadata.drop_all(bind=db_engine)
 
 
 @pytest.fixture
@@ -43,8 +53,10 @@ def client(db_session):
             pass
 
     app.dependency_overrides[get_db] = override_get_db
+
     with TestClient(app) as test_client:
         yield test_client
+
     app.dependency_overrides.clear()
 
 
@@ -63,9 +75,11 @@ def create_user(
         password_hash=hash_password(password) if with_password else None,
         role=role,
     )
+
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
+
     return user
 
 
@@ -96,5 +110,7 @@ def auth_headers(client, email, password):
         "/auth/login",
         json={"email": email, "password": password},
     )
+
     token = response.json()["access_token"]
+
     return {"Authorization": f"Bearer {token}"}
